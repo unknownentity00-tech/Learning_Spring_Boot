@@ -4,6 +4,8 @@ import com.Learnings.practical.Entity.RestrauntEntity;
 import com.Learnings.practical.Repositry.RestrauntRepositry;
 import com.Learnings.practical.RestrauntService.RestrauntService;
 import com.Learnings.practical.dto.restrauntdto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class restrauntController {
     }
 
     @PostMapping
-    public restrauntdto createRestraunt(@RequestBody restrauntdto restrauntdto) {
-        return restrauntService.createRestraunt(restrauntdto);
+    public ResponseEntity<restrauntdto> createRestraunt(@RequestBody restrauntdto restrauntdto) {
+        return new ResponseEntity<>(restrauntService.createRestraunt(restrauntdto), HttpStatus.CREATED);
     }
 
 
@@ -52,11 +54,25 @@ public class restrauntController {
 //    }
 
 
+//
+//    @GetMapping
+//    public List<restrauntdto> getAllRestraunts(){
+//        return restrauntService.getAllRestraunts();
+//    }
+@GetMapping("/{id}")
+public ResponseEntity<restrauntdto> getRestrauntById(@PathVariable Long id) {
+    Optional<restrauntdto> restrauntdto = Optional.ofNullable(restrauntService.getRestrauntById(id));
+    return restrauntdto
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
 
-    @GetMapping
-    public List<restrauntdto> getAllRestraunts(){
-        return restrauntService.getAllRestraunts();
-    }
+
+//    @GetMapping
+//    public ResponseEntity<List<restrauntdto>> getAllEmployees(@RequestParam(required = false, name = "inputname") Integer id,
+//                                                              @RequestParam(required = false) String sortBy) {
+//        return ResponseEntity.ok(restrauntService.getAllRestraunts());
+//    }
 //    @GetMapping
 //    public List<restrauntdto> getAllRestraunts(@RequestParam(required = false) String name,
 //                                               @RequestParam(required = false) String sortBy) {
@@ -66,61 +82,23 @@ public class restrauntController {
 //                .toList();
 //    }
     @DeleteMapping(path = "/{restrauntId}")
-    public String deleteRestraunt(@PathVariable Long restrauntId) {
-        // 1. VALIDATION: Check the Database to see if the ID exists before acting.
-//        if(!restrauntRepositry.existsById(restrauntId)) {
-//            throw new RuntimeException("Logic Error: Cannot delete what does not exist. ID: " + restrauntId);
-//        }
-
-        // 2. ACTION: Tell the repository to remove the record from the disk.
+    public ResponseEntity<Boolean> deleteRestraunt(@PathVariable Long restrauntId) {
+        if (!restrauntRepositry.existsById(restrauntId)) {
+            return ResponseEntity.notFound().build();
+        }
         restrauntRepositry.deleteById(restrauntId);
-
-        // 3. RESPONSE: Return a simple string confirmation (No DTO needed).
-        return "Restaurant with ID " + restrauntId + " has been deleted.";
+        return ResponseEntity.ok(true);
     }
 
     @PutMapping(path = "/{restrauntId}")
-    public restrauntdto updateRestraunt(@PathVariable Long restrauntId, @RequestBody restrauntdto inputDto) {
-        // 1. RETRIEVAL: Find the existing record that we want to overwrite.
-         //  type 1: most basic way
-        RestrauntEntity existingEntity = restrauntRepositry.findById(restrauntId)
-                .orElseThrow(() -> new RuntimeException("Update Failed: Restaurant not found."));
-
-
-
-        /* logic brute force checking  the manual way
-        Optional<RestrauntEntity> optionalEntity = restrauntRepositry.findById(restrauntId);
-
-        if (optionalEntity.isPresent()) {
-      // Use .get() to take the Entity out of the Optional box
-        RestrauntEntity entity = optionalEntity.get();
-
-       // Now you can use setName
-        entity.setName(inputDto.getName());
-          restrauntRepositry.save(entity);
-       } manual way */
-
-/* direct way
-restrauntRepositry.findById(restrauntId).ifPresent(entity -> {
-    // This code ONLY runs if the entity was found
-    entity.setName(inputDto.getName());
-    restrauntRepositry.save(entity);
-});
-*/
-
-
-        //Optional<RestrauntEntity> existingEntity = restrauntRepositry.findById(restrauntId);
-       // this is wrong  at we caanot use setname as we are  holding the contioner which will have wether
-        // the  entity has value rather then  hopling the restrroentity   so this is the mistake
-
-        // 2. MAPPING (DTO -> Entity): Overwrite the old database values with the new User input.
+    public ResponseEntity<restrauntdto> updateRestraunt(@PathVariable Long restrauntId, @RequestBody restrauntdto inputDto) {
+        if (!restrauntRepositry.existsById(restrauntId)) {
+            return ResponseEntity.notFound().build();
+        }
+        RestrauntEntity existingEntity = restrauntRepositry.findById(restrauntId).get();
         existingEntity.setName(inputDto.getName());
-
-        // 3. PERSISTENCE: Save the updated Entity back to the database.
         RestrauntEntity updatedEntity = restrauntRepositry.save(existingEntity);
-
-        // 4. RESPONSE (Entity -> DTO): Return the updated data back to the User.
-        return new restrauntdto(updatedEntity.getId(), updatedEntity.getName());
+        return ResponseEntity.ok(new restrauntdto(updatedEntity.getId(), updatedEntity.getName()));
     }
 
 
