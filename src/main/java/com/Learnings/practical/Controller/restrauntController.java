@@ -2,6 +2,7 @@ package com.Learnings.practical.Controller;
 
 import com.Learnings.practical.Entity.RestrauntEntity;
 import com.Learnings.practical.Repositry.RestrauntRepositry;
+import com.Learnings.practical.RestrauntService.RestrauntService;
 import com.Learnings.practical.dto.restrauntdto;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,31 +15,56 @@ public class restrauntController {
 
     private  final RestrauntRepositry restrauntRepositry;
 
-    public restrauntController(RestrauntRepositry restrauntRepositry) {
+    private final RestrauntService restrauntService;
+
+    public restrauntController(RestrauntRepositry restrauntRepositry, RestrauntService restrauntService) {
         this.restrauntRepositry = restrauntRepositry;
+        this.restrauntService = restrauntService;
     }
 
     @PostMapping
     public restrauntdto createRestraunt(@RequestBody restrauntdto restrauntdto) {
-// converting dto into entity
-        RestrauntEntity entity = new RestrauntEntity();
-        entity.setName(restrauntdto.getName());
-// 2. Save the Entity via the Repository
-        RestrauntEntity savedEntity = restrauntRepositry.save(entity);
-
-// 3. Convert the saved Entity back to a DTO to return it to the user
-        return new restrauntdto(savedEntity.getId(), savedEntity.getName());
-
+        return restrauntService.createRestraunt(restrauntdto);
     }
+
+
+
+
+
+
+//    @PostMapping
+//    public restrauntdto createRestraunt(@RequestBody restrauntdto restrauntdto) {
+//// converting dto into entity
+//        RestrauntEntity entity = new RestrauntEntity();
+//        entity.setName(restrauntdto.getName());
+//// 2. Save the Entity via the Repository
+//        RestrauntEntity savedEntity = restrauntRepositry.save(entity);
+//
+//// 3. Convert the saved Entity back to a DTO to return it to the user
+//        return new restrauntdto(savedEntity.getId(), savedEntity.getName());
+//
+//    }
+
+
+//    @GetMapping(path = "/{restrauntId}")
+//    public restrauntdto getRestrauntById(@PathVariable Long restrauntId) {
+//         return restrauntService.getRestrauntById(restrauntId);
+//    }
+
+
 
     @GetMapping
-    public List<restrauntdto> getAllRestraunts(@RequestParam(required = false) String name,
-                                               @RequestParam(required = false) String sortBy) {
-        List<RestrauntEntity> entities = restrauntRepositry.findAll();
-        return entities.stream()
-                .map(entity -> new restrauntdto(entity.getId(), entity.getName()))
-                .toList();
+    public List<restrauntdto> getAllRestraunts(){
+        return restrauntService.getAllRestraunts();
     }
+//    @GetMapping
+//    public List<restrauntdto> getAllRestraunts(@RequestParam(required = false) String name,
+//                                               @RequestParam(required = false) String sortBy) {
+//        List<RestrauntEntity> entities = restrauntRepositry.findAll();
+//        return entities.stream()
+//                .map(entity -> new restrauntdto(entity.getId(), entity.getName()))
+//                .toList();
+//    }
     @DeleteMapping(path = "/{restrauntId}")
     public String deleteRestraunt(@PathVariable Long restrauntId) {
         // 1. VALIDATION: Check the Database to see if the ID exists before acting.
