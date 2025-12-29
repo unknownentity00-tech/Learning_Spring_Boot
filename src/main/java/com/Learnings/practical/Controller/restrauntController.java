@@ -5,6 +5,7 @@ import com.Learnings.practical.Repositry.RestrauntRepositry;
 import com.Learnings.practical.dto.restrauntdto;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -30,18 +31,14 @@ public class restrauntController {
 
     }
 
-    @GetMapping(path = "/{restrauntId}")
-    public restrauntdto getRestrauntById(@PathVariable Long restrauntId) {
-
-        // 1. Fetch the Entity and handle the "Empty" case immediately
-        RestrauntEntity restaurant = restrauntRepositry.findById(restrauntId)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + restrauntId));
-
-        // 2. Now 'restaurant' is guaranteed to be a real object (no .get() needed)
-        return new restrauntdto(restaurant.getId(), restaurant.getName());
+    @GetMapping
+    public List<restrauntdto> getAllRestraunts(@RequestParam(required = false) String name,
+                                               @RequestParam(required = false) String sortBy) {
+        List<RestrauntEntity> entities = restrauntRepositry.findAll();
+        return entities.stream()
+                .map(entity -> new restrauntdto(entity.getId(), entity.getName()))
+                .toList();
     }
-
-
     @DeleteMapping(path = "/{restrauntId}")
     public String deleteRestraunt(@PathVariable Long restrauntId) {
         // 1. VALIDATION: Check the Database to see if the ID exists before acting.
@@ -65,7 +62,7 @@ public class restrauntController {
 
 
 
-        /* logic  brute force checking  the manual way
+        /* logic brute force checking  the manual way
         Optional<RestrauntEntity> optionalEntity = restrauntRepositry.findById(restrauntId);
 
         if (optionalEntity.isPresent()) {
