@@ -1,20 +1,28 @@
 package com.Learnings.practical.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
+@RequiredArgsConstructor
 @Configuration
 public class WebSecurityConfig {
+
+    private  final PasswordEncoder passwordEncoder;
 
 @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
    httpSecurity
            .authorizeHttpRequests(auth->auth
                    .requestMatchers("/public /**").permitAll()
-                   .requestMatchers("/restraunt/**").authenticated()
+                   .requestMatchers("/restraunt/**").hasRole("Restraunt")
            )
            .formLogin(Customizer.withDefaults());
    return httpSecurity.build();
@@ -22,4 +30,24 @@ public class WebSecurityConfig {
 //here the main significance holds is permitAll() that means anyone can access authenticated()
 // means the login page will apear  as a auhteticator
 
+    //creating in memory role detials
+    @Bean
+    UserDetailsService userDetailsService() {
+            UserDetails user1 = User
+                .withUsername("admin")
+                .password("pass")
+                .roles("Restraunt")
+                .build();
+//        return new InMemoryUserDetailsManager(user1);
+
+
+
+        UserDetails  user2 =  User
+                .withUsername("user")
+                .password("pass")// we cannot directly stor the password here in fact we have to
+                //  encode it thats why we added the password encoder file it can beseen by someone
+                .roles("public")
+                .build();
+        return new InMemoryUserDetailsManager(user1 , user2);
+    }
 }
