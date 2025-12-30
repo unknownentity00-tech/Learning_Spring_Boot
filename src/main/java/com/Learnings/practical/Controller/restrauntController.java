@@ -54,18 +54,18 @@ public class restrauntController {
 //    }
 
 
-//
-//    @GetMapping
-//    public List<restrauntdto> getAllRestraunts(){
-//        return restrauntService.getAllRestraunts();
-//    }
-@GetMapping("/{id}")
-public ResponseEntity<restrauntdto> getRestrauntById(@PathVariable Long id) {
-    Optional<restrauntdto> restrauntdto = Optional.ofNullable(restrauntService.getRestrauntById(id));
-    return restrauntdto
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-}
+
+    @GetMapping
+    public List<restrauntdto> getAllRestraunts(){
+        return restrauntService.getAllRestraunts();
+    }
+//@GetMapping("/{id}")
+//public ResponseEntity<restrauntdto> getRestrauntById(@PathVariable Long id) {
+//    Optional<restrauntdto> restrauntdto = Optional.ofNullable(restrauntService.getRestrauntById(id));
+//    return restrauntdto
+//            .map(ResponseEntity::ok)
+//            .orElse(ResponseEntity.notFound().build());
+//}
 
 
 //    @GetMapping
