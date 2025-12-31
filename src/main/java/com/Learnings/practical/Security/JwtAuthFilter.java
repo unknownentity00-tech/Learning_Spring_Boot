@@ -12,8 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.logging.Handler;
 
 @Component
 @Slf4j
@@ -21,25 +23,30 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final UserRepositry userRepositry;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
     ) throws ServletException, IOException {
-log.info(" incoming request: {}", request.getRequestURI());
-final String authorizationHeader = request.getHeader("Authorization");
-if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-    filterChain.doFilter(request,response);
-    return;
-}
-String token = authorizationHeader.split("Bearer")[1];
+        try {
+            log.info(" incoming request: {}", request.getRequestURI());
+            final String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            String token = authorizationHeader.split("Bearer")[1];
 // it means thT we will split the token and get the token from it which have array 1
-String username = AuthUtil.getUsernameFromToken(token);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepositry.findByUsername(username).orElseThrow();
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
-filterChain.doFilter(request,response);
+            String username = AuthUtil.getUsernameFromToken(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                User user = userRepositry.findByUsername(username).orElseThrow();
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+            filterChain.doFilter(request, response);
 
+        } catch (Exception ex) {
+            handlerExceptionResolver.resolveException(request, response, null, ex);
+        }
     }
 }

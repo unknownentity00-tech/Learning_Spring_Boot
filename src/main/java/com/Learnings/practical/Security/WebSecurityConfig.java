@@ -27,7 +27,7 @@ public class WebSecurityConfig {
            // in  the manager that we we will use the below
            .csrf(csrfConfig->csrfConfig.disable())
            .sessionManagement(sessionconfig ->
-                   sessionconfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+             sessionconfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
            .authorizeHttpRequests(auth->auth
            .requestMatchers("/public/**","/auth/**").permitAll()
            .requestMatchers("/restraunt/**").hasRole("Restraunt")

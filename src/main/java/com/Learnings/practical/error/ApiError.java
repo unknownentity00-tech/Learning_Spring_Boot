@@ -1,4 +1,4 @@
-package com.Learnings.practical.advices;
+package com.Learnings.practical.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,4 +16,7 @@ public class ApiError {
     private HttpStatus status;
     private String message;
     private List<String> errors;
+
+    public ApiError(HttpStatus httpStatus, String message, HttpStatus httpStatus1) {
+    }
 }

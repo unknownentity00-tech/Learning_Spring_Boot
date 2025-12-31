@@ -1,6 +1,7 @@
 
 package com.Learnings.practical.advices;
 
+import com.Learnings.practical.error.ApiError;
 import lombok.Data;
 import java.time.LocalDateTime;
 

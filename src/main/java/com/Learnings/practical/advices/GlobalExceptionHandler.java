@@ -1,5 +1,6 @@
 package com.Learnings.practical.advices;
 
+import com.Learnings.practical.error.ApiError;
 import com.Learnings.practical.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
