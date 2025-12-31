@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final AuthUtil authUtil;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+
 
     public LoginResponseDto login(@RequestBody LoginRequestDto loginRequestDto){
        Authentication authentication = authenticationManager.authenticate(
@@ -49,7 +52,7 @@ public class AuthService {
          user = UserRepositry.save(User
                  .builder()
                  .Username(signupRequestDto.getUsername())
-                 .password(signupRequestDto.getPassword())
+                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                  .build()
          );
         return modelMapper.map(user.get(), SignupResponseDto.class);

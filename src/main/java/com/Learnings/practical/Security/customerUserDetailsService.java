@@ -15,11 +15,13 @@ public class customerUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepositry.findByUsername( username).orElseThrow(
+        return (UserDetails) userRepositry.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("Username does not exist")
         );
+    }
     }// now dao filter will use this method to retirieve  users and password
 
     //earlier when the bean was there and we were using in memory  the load user by username method
     //was  there and now we the user and password are stored in the database so we have to write the
     // load user by username method
-}
+

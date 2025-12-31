@@ -20,13 +20,24 @@ public class AuthUtil {
    @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
+    public static String getUsernameFromToken(String token) {
+
+     Claims claims =  Jwts.parser()
+             .verifyWith(getSecretKey())
+             .build()
+             .parseSignedClaims(token)
+             .getPayload();
+
+   return claims.getSubject();
+    }
+
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
    public String generateToken(User user) {
      return  Jwts.builder()
-               .subject(user.getId().toString())
+               .subject(user.getUsername())
 //               .claim("email", user.getEmail())
 //               .claim("roles", Set.of("ADMIN", "USER"))
                .claim("UserId",user.getId().toString())
