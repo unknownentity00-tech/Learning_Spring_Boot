@@ -1,4 +1,4 @@
-package com.Learnings.practical.config;
+package com.Learnings.practical.Security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,31 +21,35 @@ public class WebSecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
    httpSecurity
            .authorizeHttpRequests(auth->auth
-                   .requestMatchers("/public /**").permitAll()
+                   .requestMatchers("/public/**","/auth/**").permitAll()
                    .requestMatchers("/restraunt/**").hasRole("Restraunt")
            )
            .formLogin(Customizer.withDefaults());
    return httpSecurity.build();
   }
-//here the main significance holds is permitAll() that means anyone can access authenticated()
-// means the login page will apear  as a auhteticator
+
+
+    //here the main significance holds is permitAll() that means anyone can access authenticated()
+    // means the login page will appear as a autheticator
 
     //creating in memory role detials
-    @Bean
+    //@Bean
     UserDetailsService userDetailsService() {
             UserDetails user1 = User
                 .withUsername("admin")
-                .password("pass")
+                .password(passwordEncoder.encode("pass1"))
                 .roles("Restraunt")
                 .build();
-//        return new InMemoryUserDetailsManager(user1);
+
+    // return new InMemoryUserDetailsManager(user1);
 
 
 
         UserDetails  user2 =  User
                 .withUsername("user")
-                .password("pass")// we cannot directly stor the password here in fact we have to
-                //  encode it thats why we added the password encoder file it can beseen by someone
+                .password(passwordEncoder.encode("pass"))
+                // we cannot directly stor the password here in fact we have to
+                // encode it thats why we added the password encoder file it can beseen by someone
                 .roles("public")
                 .build();
         return new InMemoryUserDetailsManager(user1 , user2);
